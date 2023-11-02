@@ -2,3 +2,8 @@ Flask==3.0.0
 pandas==2.1.2
 plotly==5.3.1
 yfinance==0.2.31
+pylint
+pytest
+pytest-cov
+click
+black
