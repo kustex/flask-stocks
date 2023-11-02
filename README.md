@@ -3,4 +3,4 @@
 # flask-stocks
 Flask app that displays spx stock data
 
-[!Screenshot][img/screenshot-html.png]
+[!Screenshot](img/screenshot-html.png)
