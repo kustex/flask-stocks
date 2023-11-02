@@ -1,25 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPX Stock Chart</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</head>
+    <meta charset="utf-8">
+    <title>Stock Returns</title>
+    <style>
+        .sorted {
+            background-color: lightgrey;
+        }
 
-<body>
-    <h1>S&P 500 (SPX) Stock Chart</h1>
-    <div id="chart"></div>
-
+        #returnsTable td {
+            text-align: center;
+        }
+    </style>
     <script>
-        // Parse the graphJSON data passed from Flask into a JavaScript object
-        var graphJSON = {{ graphJSON | safe }};
+        function sortTable(columnIndex, isNumeric) {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("returnsTable");
+            switching = true;
 
-        // Render the Plotly chart using the parsed JSON data
-        Plotly.newPlot('chart', graphJSON.data, graphJSON.layout);
+            // Remove the 'sorted' class from all header cells
+            var headerCells = document.getElementsByTagName("th");
+            for (var i = 0; i < headerCells.length; i++) {
+                headerCells[i].classList.remove("sorted");
+            }
+
+            // Add the 'sorted' class to the clicked header cell
+            var clickedHeader = document.getElementsByTagName("th")[columnIndex];
+            clickedHeader.classList.add("sorted");
+
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = isNumeric ? parseFloat(rows[i].getElementsByTagName("td")[columnIndex].textContent) :
+                                    rows[i].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+                    y = isNumeric ? parseFloat(rows[i + 1].getElementsByTagName("td")[columnIndex].textContent) :
+                                    rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+
+                    if (x > y) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
     </script>
+</head>
+<body>
+    <h1>Stock Returns</h1>
+    <table border="1" id="returnsTable">
+        <tr>
+            <th onclick="sortTable(0, false)">Symbol</th>
+            <th onclick="sortTable(1, true)">Daily Return (%)</th>
+            <th onclick="sortTable(2, true)">Weekly Return (%)</th>
+            <th onclick="sortTable(3, true)">Monthly Return (%)</th>
+            <th onclick="sortTable(4, true)">Yearly Return (%)</th>
+        </tr>
+        {% for symbol, returns in returns_data.items() %}
+        <tr>
+            <td>{{ symbol }}</td>
+            <td>{{ returns['daily_return'] }}</td>
+            <td>{{ returns['weekly_return'] }}</td>
+            <td>{{ returns['monthly_return'] }}</td>
+            <td>{{ returns['yearly_return'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h2>Correlation Table</h2>
+    <table border="1">
+        <tr>
+            <th></th>
+            {% for symbol in returns_data.keys() %}
+            <th>{{ symbol }}</th>
+            {% endfor %}
+        </tr>
+        {% for symbol, correlations in correlation_table.items() %}
+        <tr>
+            <td><strong>{{ symbol }}</strong></td>
+            {% for correlation in correlations %}
+            <td>{{ correlation|round(2) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
 </body>
-
 </html>
 
