@@ -1,11 +1,9 @@
 import yfinance as yf
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objs as go
 import os
 import sqlite3
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 
 app = Flask(__name__)
 # Get the absolute path to the directory of the current script
@@ -73,7 +71,6 @@ def fetch_stock_data(symbol, period='2y', interval='1d'):
 def index():
     create_database()
     symbols = ['TSLA', 'MSFT', 'GOOGL', 'NVDA', 'NFLX']
-    interval = '1d'
 
     returns_data = {}
     for symbol in symbols:
