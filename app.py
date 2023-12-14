@@ -29,6 +29,7 @@ def calculate_returns(stock_data):
     return round(daily_return, 2), round(weekly_return, 2), round(monthly_return, 2), round(yearly_return, 2)
 
 def create_database():
+    # Create sqlite database if it doesn't exist yet
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS stock_data (
@@ -45,6 +46,7 @@ def create_database():
     conn.close()
 
 def fetch_stock_data(symbol, period='2y', interval='1d'):
+    # Connect to sqlite database and get historical data for specific stock
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM stock_data WHERE symbol=? AND date >= date('now', '-2 year')", (symbol,))
@@ -69,6 +71,7 @@ def fetch_stock_data(symbol, period='2y', interval='1d'):
 
 @app.route('/')
 def index():
+    # function that routes to index.html using flask 
     create_database()
     symbols = ['TSLA', 'MSFT', 'GOOGL', 'NVDA', 'NFLX']
 
